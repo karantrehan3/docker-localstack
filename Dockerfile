@@ -3,6 +3,8 @@ FROM localstack/localstack
 
 # Set environment variables if needed
 ENV DEBUG=0
+ENV SERVICES=s3,sqs
+ENV PERSISTENCE=s3,sqs
 
 # Install dos2unix
 RUN apt-get update && apt-get install -y dos2unix
