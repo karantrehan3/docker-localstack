@@ -2,7 +2,7 @@
 
 {% include header.html %}
 
-# Using Docker
+## Using Docker
 
 ### One time setup
 
