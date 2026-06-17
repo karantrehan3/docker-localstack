@@ -1,7 +1,5 @@
 # How to configure [localstack](https://docs.localstack.cloud/getting-started/quickstart/)?
 
-{% include header.html %}
-
 ## Using Docker
 
 ### One time setup

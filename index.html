@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docker + LocalStack — run AWS on your laptop</title>
+    <meta
+      name="description"
+      content="A ready-to-run Docker Compose setup for LocalStack — spin up a local AWS cloud with one command and auto-provision your resources from init scripts. No AWS account, no cloud bill."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B3%3C/text%3E%3C/svg%3E"
+    />
+    <meta property="og:title" content="Docker + LocalStack" />
+    <meta
+      property="og:description"
+      content="Run a local AWS cloud with one Docker Compose command and auto-provision resources from init scripts."
+    />
+    <meta property="og:type" content="website" />
+    <style>
+      :root {
+        --bg: #0a1622;
+        --surface: #0f2030;
+        --surface-2: #16293c;
+        --line: #21384f;
+        --text: #eef6fc;
+        --muted: #8aa3bb;
+        --accent: #2496ed;
+        --accent-2: #4db5ff;
+        --radius: 18px;
+        --space: clamp(4rem, 3rem + 5vw, 8rem);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Hero */
+      .hero {
+        position: relative;
+        text-align: center;
+        padding: clamp(4rem, 3rem + 6vw, 7rem) 0 var(--space);
+        overflow: hidden;
+      }
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: -40% 0 auto 0;
+        height: 540px;
+        background: radial-gradient(60% 60% at 50% 0%, rgba(36, 150, 237, 0.2), transparent 70%);
+        pointer-events: none;
+      }
+      .badge {
+        width: 132px;
+        height: 132px;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55));
+      }
+      h1 {
+        font-size: clamp(2.6rem, 1.5rem + 5vw, 4.8rem);
+        letter-spacing: -0.03em;
+        margin: 1.4rem 0 0.4rem;
+        font-weight: 800;
+      }
+      .tagline {
+        color: var(--muted);
+        font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.4rem);
+        max-width: 42ch;
+        margin: 0 auto;
+      }
+      .cta {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2.2rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.6rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          transform 0.2s var(--ease),
+          background 0.2s var(--ease),
+          border-color 0.2s var(--ease);
+        border: 1px solid transparent;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #03121f;
+      }
+      .btn-primary:hover {
+        background: var(--accent-2);
+      }
+      .btn-ghost {
+        border-color: var(--line);
+        color: var(--text);
+        background: var(--surface);
+      }
+      .btn-ghost:hover {
+        border-color: #2f4f6e;
+      }
+      .platforms {
+        margin-top: 1.4rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .platforms strong {
+        color: var(--accent-2);
+      }
+
+      /* Sections */
+      section {
+        padding: var(--space) 0;
+        border-top: 1px solid var(--line);
+      }
+      h2 {
+        font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.4rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 2.2rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        transition:
+          transform 0.25s var(--ease),
+          border-color 0.25s var(--ease);
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+      }
+      .card h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.15rem;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+      .ico {
+        font-size: 1.5rem;
+        margin-bottom: 0.7rem;
+        display: block;
+      }
+
+      /* Quickstart */
+      .quickstart {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 760px) {
+        .quickstart {
+          grid-template-columns: 1.1fr 0.9fr;
+          align-items: start;
+        }
+      }
+      .steps {
+        display: grid;
+        gap: 0.8rem;
+        counter-reset: step;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: var(--radius);
+        padding: 1rem 1.3rem;
+        transition: border-color 0.25s var(--ease);
+      }
+      .step:hover {
+        border-left-color: var(--accent-2);
+      }
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        flex: 0 0 auto;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background: rgba(36, 150, 237, 0.16);
+        color: var(--accent-2);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .step strong {
+        color: var(--text);
+      }
+      pre {
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 1.2rem 1.3rem;
+        overflow-x: auto;
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.7;
+      }
+      code,
+      pre {
+        font-family: 'SF Mono', ui-monospace, 'Cascadia Code', Menlo, monospace;
+      }
+      pre .c {
+        color: var(--muted);
+      }
+      pre .p {
+        color: var(--accent-2);
+      }
+
+      footer {
+        text-align: center;
+        color: var(--muted);
+        padding: 3rem 0;
+        border-top: 1px solid var(--line);
+        font-size: 0.9rem;
+      }
+      footer a {
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px solid var(--line);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="wrap">
+        <svg class="badge" viewBox="0 0 132 132" role="img" aria-label="Docker LocalStack icon">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#16293c" />
+              <stop offset="1" stop-color="#0a1622" />
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="128" height="128" rx="30" fill="url(#bg)" stroke="#21384f" />
+          <g fill="none" stroke="#4db5ff" stroke-width="2.6" stroke-linejoin="round">
+            <rect x="40" y="62" width="16" height="14" rx="2" />
+            <rect x="58" y="62" width="16" height="14" rx="2" />
+            <rect x="76" y="62" width="16" height="14" rx="2" />
+            <rect x="49" y="46" width="16" height="14" rx="2" />
+            <rect x="67" y="46" width="16" height="14" rx="2" />
+          </g>
+          <path
+            d="M30 80 h74 c0 9 -7 16 -16 16 H46 c-9 0 -16 -7 -16 -16 Z"
+            fill="#2496ed"
+          />
+          <path
+            d="M104 80 c6 0 9 -3 11 -6 c-1 5 -4 12 -13 12"
+            fill="none"
+            stroke="#2496ed"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+        </svg>
+        <h1>Docker + LocalStack</h1>
+        <p class="tagline">
+          A ready-to-run Compose setup that spins up a local AWS cloud — and auto-provisions your resources from
+          init scripts. No AWS account, no cloud bill.
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://github.com/karantrehan3/docker-localstack">View on GitHub</a>
+          <a class="btn btn-ghost" href="#quickstart">Quick start</a>
+        </div>
+        <p class="platforms">
+          <strong>Docker Compose</strong> · LocalStack · shell init scripts
+        </p>
+      </div>
+    </header>
+
+    <main>
+      <section id="features">
+        <div class="wrap">
+          <h2>What it does</h2>
+          <div class="grid">
+            <div class="card">
+              <span class="ico">☁️</span>
+              <h3>AWS, locally</h3>
+              <p>
+                LocalStack emulates AWS services on your machine, so you can develop and test against S3, SQS,
+                Lambda and friends without touching a real account.
+              </p>
+            </div>
+            <div class="card">
+              <span class="ico">🐳</span>
+              <h3>One command up</h3>
+              <p>
+                A pre-wired <code>docker-compose.yml</code> and <code>Dockerfile</code> — just
+                <code>docker-compose up --build</code> and the stack is running.
+              </p>
+            </div>
+            <div class="card">
+              <span class="ico">📜</span>
+              <h3>Auto-provisioning</h3>
+              <p>
+                On boot the container runs <code>scripts/init.sh</code>, which chains your child scripts in
+                order to seed buckets, queues and whatever else you need.
+              </p>
+            </div>
+            <div class="card">
+              <span class="ico">💸</span>
+              <h3>Zero cloud cost</h3>
+              <p>
+                Everything runs in a throwaway container. Tear it down, rebuild, and start clean — no orphaned
+                cloud resources, no surprise charges.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="quickstart">
+        <div class="wrap">
+          <h2>Quick start</h2>
+          <div class="quickstart">
+            <div class="steps">
+              <div class="step">
+                <p><strong>Install Docker</strong> (and the Compose plugin on Linux) and start the daemon.</p>
+              </div>
+              <div class="step">
+                <p><strong>Pull the image</strong> once with <code>docker pull localstack/localstack</code>.</p>
+              </div>
+              <div class="step">
+                <p>
+                  <strong>Bring it up</strong> from the directory holding the compose file. The container starts
+                  and <code>scripts/init.sh</code> runs every child script automatically.
+                </p>
+              </div>
+            </div>
+            <pre><span class="c"># clone &amp; enter</span>
+git clone \
+  https://github.com/karantrehan3/docker-localstack
+cd docker-localstack
+
+<span class="c"># pull LocalStack</span>
+docker pull localstack/localstack
+
+<span class="c"># spin it all up</span>
+docker-compose up <span class="p">--build</span></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p>
+          Built with Docker, Docker Compose &amp; LocalStack ·
+          <a href="https://github.com/karantrehan3/docker-localstack">GitHub</a> ·
+          <a href="https://github.com/karantrehan3/docker-localstack/blob/master/LICENSE">MIT</a>
+        </p>
+        <p>© 2024 Karan Trehan</p>
+      </div>
+    </footer>
+  </body>
+</html>
