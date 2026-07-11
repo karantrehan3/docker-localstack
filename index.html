@@ -513,6 +513,19 @@ docker-compose up <span class="cf">--build</span></code></pre>
 
     <script>
     (function () {
+      /* ── Configurable timing (ms) ── */
+      var DEMO_RESTART_DELAY  = 3000;
+      var TYPING_SPEED_BASE   = 22;
+      var TYPING_SPEED_JITTER = 18;
+      var TYPING_PAUSE        = 400;
+      var OUTPUT_FADE_DELAY   = 60;
+      var OUTPUT_LINE_DELAY   = 250;
+      var OK_FADE_DELAY       = 60;
+      var OK_LINE_DELAY       = 300;
+      var SERVICE_FADE_DELAY  = 80;
+      var SERVICE_LINE_DELAY  = 350;
+      var COPY_FEEDBACK       = 1500;
+
       /* ── Portfolio nav ── */
       if (new URLSearchParams(location.search).get('ref') === 'portfolio') {
         var nav = document.getElementById('navHome');
@@ -602,7 +615,7 @@ docker-compose up <span class="cf">--build</span></code></pre>
 
         function nextLine() {
           if (lineIdx >= demo.lines.length) {
-            setTimeout(runDemo, 3000);
+            setTimeout(runDemo, DEMO_RESTART_DELAY);
             return;
           }
           var line = demo.lines[lineIdx++];
@@ -630,11 +643,11 @@ docker-compose up <span class="cf">--build</span></code></pre>
               if (ci >= chars.length) {
                 cursor.remove();
                 pre.appendChild(document.createTextNode('\n'));
-                setTimeout(nextLine, 400);
+                setTimeout(nextLine, TYPING_PAUSE);
                 return;
               }
               cursor.before(document.createTextNode(chars[ci++]));
-              setTimeout(typeChar, 22 + Math.random() * 18);
+              setTimeout(typeChar, TYPING_SPEED_BASE + Math.random() * TYPING_SPEED_JITTER);
             }
             typeChar();
           } else if (line.type === 'output') {
@@ -643,24 +656,24 @@ docker-compose up <span class="cf">--build</span></code></pre>
             sp.textContent = line.text + '\n';
             sp.style.opacity = '0';
             pre.appendChild(sp);
-            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, 60);
-            setTimeout(nextLine, 250);
+            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, OUTPUT_FADE_DELAY);
+            setTimeout(nextLine, OUTPUT_LINE_DELAY);
           } else if (line.type === 'ok') {
             var sp = document.createElement('span');
             sp.className = 't-ok';
             sp.textContent = line.text + '\n';
             sp.style.opacity = '0';
             pre.appendChild(sp);
-            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, 60);
-            setTimeout(nextLine, 300);
+            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, OK_FADE_DELAY);
+            setTimeout(nextLine, OK_LINE_DELAY);
           } else if (line.type === 'service') {
             var sp = document.createElement('span');
             sp.className = 't-service';
             sp.textContent = line.text + '\n';
             sp.style.opacity = '0';
             pre.appendChild(sp);
-            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, 80);
-            setTimeout(nextLine, 350);
+            setTimeout(function () { sp.style.transition = 'opacity .3s'; sp.style.opacity = '1'; }, SERVICE_FADE_DELAY);
+            setTimeout(nextLine, SERVICE_LINE_DELAY);
           }
         }
         nextLine();
@@ -675,7 +688,7 @@ docker-compose up <span class="cf">--build</span></code></pre>
           navigator.clipboard.writeText(text).then(function () {
             btn.textContent = 'Copied!';
             btn.classList.add('copied');
-            setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+            setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, COPY_FEEDBACK);
           });
         });
       });
