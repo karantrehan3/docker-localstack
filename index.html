@@ -541,7 +541,7 @@ docker-compose up <span class="cf">--build</span></code></pre>
       var toggle = document.getElementById('themeToggle');
       function getTheme() {
         var stored = localStorage.getItem('theme');
-        if (stored) return stored;
+        if (stored === 'light' || stored === 'dark') return stored;
         return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
       }
       function applyTheme(t) {
@@ -610,7 +610,7 @@ docker-compose up <span class="cf">--build</span></code></pre>
       function runDemo() {
         var demo = demos[demoIdx];
         demoIdx = (demoIdx + 1) % demos.length;
-        pre.innerHTML = '';
+        pre.textContent = '';
         var lineIdx = 0;
 
         function nextLine() {
