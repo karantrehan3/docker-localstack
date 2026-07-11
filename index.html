@@ -103,15 +103,19 @@
 
       /* ── Theme toggle ── */
       .theme-toggle {
-        position: fixed; top: 1.25rem; right: 1.25rem; z-index: 50;
-        width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--border-hover);
-        background: var(--surface); color: var(--text);
+        position: fixed; top: 1rem; right: 1rem; z-index: 50;
+        width: 2.4rem; height: 2.4rem; border-radius: 50%;
+        border: 1px solid var(--border);
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
         backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        cursor: pointer; display: grid; place-items: center; font-size: 1.15rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        cursor: pointer; display: grid; place-items: center;
+        font-size: 1.15rem; line-height: 1; padding: 0;
+        color: var(--text); font-family: var(--sans);
         transition: transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
       }
-      .theme-toggle:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+      .theme-toggle:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+      .theme-toggle:active { transform: scale(.95); }
+      .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
       /* ── Hero ── */
       .hero { position: relative; padding: clamp(3.5rem, 2rem + 5vw, 6rem) 0 var(--space); overflow: hidden; }
@@ -354,9 +358,7 @@
     </nav>
 
     <!-- Theme toggle -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
-      <span id="themeIcon">&#9790;</span>
-    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode" title="Toggle theme"></button>
 
     <!-- Hero -->
     <header class="hero">
@@ -519,7 +521,6 @@ docker-compose up <span class="cf">--build</span></code></pre>
 
       /* ── Theme toggle ── */
       var toggle = document.getElementById('themeToggle');
-      var icon = document.getElementById('themeIcon');
       function getTheme() {
         var stored = localStorage.getItem('theme');
         if (stored) return stored;
@@ -527,7 +528,8 @@ docker-compose up <span class="cf">--build</span></code></pre>
       }
       function applyTheme(t) {
         document.documentElement.setAttribute('data-theme', t);
-        icon.innerHTML = t === 'dark' ? '&#9790;' : '&#9728;&#65039;';
+        toggle.textContent = t === 'dark' ? '☀️' : '🌙';
+        toggle.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
       }
       applyTheme(getTheme());
       toggle.addEventListener('click', function () {
